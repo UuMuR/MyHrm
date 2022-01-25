@@ -1,0 +1,42 @@
+#服务配置
+server:
+  port: 9002
+#spring配置
+spring:
+  #nacos配置
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+  application:
+    name: myhrm-system
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/myhrm?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+      username: root
+      password: 980727
+  #spring data jpa配置
+  jpa:
+    database: MySQL
+    show-sql: true
+    open-in-view: true
+  #redis配置
+  redis:
+    host: localhost
+    port: 6379
+  config:
+    activate:
+      on-cloud-platform:
+#mp配置
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+#jwt生成token相关配置
+jwt:
+  config:
+    key: myhrm
+    ttl: 3600000 #失效时间 1000 * 60 * 60
+
+
+

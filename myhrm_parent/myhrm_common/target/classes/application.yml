@@ -1,0 +1,5 @@
+#jwt生成token相关配置
+jwt:
+  config:
+    key: myhrm
+    ttl: 3600000 #失效时间 1000 * 60 * 60

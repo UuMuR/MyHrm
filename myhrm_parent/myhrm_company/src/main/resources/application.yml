@@ -1,0 +1,34 @@
+#????
+server:
+  port: 9001
+#spring??
+spring:
+  #nacos配置
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+  application:
+    name: myhrm-company
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/myhrm?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+      username: root
+      password: 980727
+  #spring data jpa??
+  jpa:
+    database: MySQL
+    show-sql: true
+    open-in-view: true
+  redis:
+    host: localhost
+    port: 6379
+#mp??
+mybatis-plus:
+  global-config:
+    db-config:
+      table-prefix: co_
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+

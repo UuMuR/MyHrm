@@ -1,0 +1,135 @@
+package com.umr.myhrm_common_model.domain.system;
+
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
+
+import javax.persistence.*;
+import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * 用户实体类
+ */
+@TableName("bs_user")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class User implements Serializable {
+    private static final long serialVersionUID = 4297464181093070302L;
+
+    /**
+     *
+     * @param values 从excel解析出的user值数组
+     *               0：空
+     *               1：username
+     *               2：mobile
+     *               3：workNumber
+     *               4：formOfEmployment
+     *               5：timeOfEntry
+     *               6：
+     */
+    public User(Object[] values) {
+        this.username = values[1].toString();
+        this.mobile = values[2].toString();
+        this.workNumber = new DecimalFormat("#").format(values[3]).toString();
+        this.formOfEmployment = ((Double) values[4]).intValue();
+        this.timeOfEntry = (Date) values[5];
+        this.departmentId = values[6].toString();
+    }
+
+
+    /**
+     * ID
+     */
+    @TableId
+    private String id;
+    /**
+     * 手机号码
+     */
+    private String mobile;
+    /**
+     * 用户名称
+     */
+    private String username;
+    /**
+     * 密码
+     */
+    private String password;
+
+    /**
+     * 启用状态 0为禁用 1为启用
+     */
+    private Integer enableState;
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
+    private String companyId;
+
+    private String companyName;
+
+    /**
+     * 部门ID
+     */
+    private String departmentId;
+
+    /**
+     * 入职时间
+     */
+    private Date timeOfEntry;
+
+    /**
+     * 聘用形式
+     */
+    private Integer formOfEmployment;
+
+    /**
+     * 工号
+     */
+    private String workNumber;
+
+    /**
+     * 管理形式
+     */
+    private String formOfManagement;
+
+    /**
+     * 工作城市
+     */
+    private String workingCity;
+
+    /**
+     * 转正时间
+     */
+    private Date correctionTime;
+
+    /**
+     * 在职状态 1.在职  2.离职
+     */
+    private Integer inServiceStatus;
+
+    private String departmentName;
+
+    /**
+     * 用户权限等级
+     *      1、saasAdmin 平台管理员
+     *      2、coAdmin 企业管理员
+     *      3、user 普通用户
+     */
+    private String level;
+
+//    @ManyToMany
+    @JsonIgnore
+    @TableField(exist = false)
+//    @JoinTable(name="pe_user_role",joinColumns={@JoinColumn(name="user_id",referencedColumnName="id")},
+//            inverseJoinColumns={@JoinColumn(name="role_id",referencedColumnName="id")}
+//    )
+    private Set<Role> roles; //用户与角色   多对多
+}
