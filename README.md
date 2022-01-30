@@ -7,7 +7,7 @@
 
 ### 模块结构与技术选型
 
-![](https://github.com/UuMuR/MyHrm/raw/master/image/image-20220130153647755.png)
+![项目结构图](https://github.com/UuMuR/MyHrm/raw/master/image/image-20220130153647755.png)
 
 
 
