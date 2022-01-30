@@ -7,7 +7,7 @@
 
 ### 模块结构与技术选型
 
-![](image\image-20220130153647755.png)
+![](https://github.com/UuMuR/MyHrm/raw/master/image/image-20220130153647755.png)
 
 
 
