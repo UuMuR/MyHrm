@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -61,7 +63,9 @@ public class ExcelExportUtil<T> {
         response.setContentType("application/octet-stream");
         response.setHeader("content-disposition", "attachment;filename=" + new String(fileName.getBytes("ISO8859-1")));
         response.setHeader("filename", fileName);
-        workbook.write(response.getOutputStream());
+        ServletOutputStream os = response.getOutputStream();
+        workbook.write(os);
+        os.flush();
     }
 
     public CellStyle[] getTemplateStyles(Row row) {

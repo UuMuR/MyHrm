@@ -9,7 +9,7 @@ class MyhrmSystemApplicationTests {
 
     @Test
     void contextLoads() {
-        System.out.println(new Md5Hash("000000", "111", 3).toString());
+        System.out.println(new Md5Hash("123456", "112", 3).toString());
     }
 
 

@@ -1,5 +1,6 @@
 package com.umr.myhrm_system.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.umr.myhrm_common.controller.BaseController;
@@ -8,9 +9,13 @@ import com.umr.myhrm_common.entity.Result;
 import com.umr.myhrm_common.entity.ResultCode;
 import com.umr.myhrm_common.exception.NoResultException;
 import com.umr.myhrm_common.utils.JwtUtils;
+import com.umr.myhrm_common.utils.PermissionConstants;
+import com.umr.myhrm_common_model.domain.system.Permission;
+import com.umr.myhrm_common_model.domain.system.Role;
 import com.umr.myhrm_common_model.domain.system.response.ProfileResult;
 import com.umr.myhrm_common_model.domain.system.response.UserResult;
 import com.umr.myhrm_common_model.domain.system.User;
+import com.umr.myhrm_common_model.domain.system.response.UserSimpleResult;
 import com.umr.myhrm_feign.client.DepartmentClient;
 import com.umr.myhrm_system.service.PermissionService;
 import com.umr.myhrm_system.service.UserService;
@@ -26,6 +31,10 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,8 +55,22 @@ public class UserController extends BaseController {
     DepartmentClient departmentClient;
 
     /**
+     * 上传用户头像
+     *
+     * @param id   用户id
+     * @param file 图片
+     * @return
+     */
+    @PostMapping("/user/upload/{id}")
+    public Result upload(@PathVariable String id, @RequestParam("file") MultipartFile file) throws IOException {
+        String img = userService.upload(id, file);
+        return new Result(ResultCode.SUCCESS, img);
+    }
+
+    /**
      * 导入excel表数据进入user
-     * @param file  文件为excel表，文件名为‘file’
+     *
+     * @param file 文件为excel表，文件名为‘file’
      * @return
      */
     @PostMapping("/user/import")
@@ -84,9 +107,9 @@ public class UserController extends BaseController {
                 value = cell.getBooleanCellValue();
                 break;
             case NUMERIC: //数字类型（包含日期和普通数字）
-                if(DateUtil.isCellDateFormatted(cell)) {
+                if (DateUtil.isCellDateFormatted(cell)) {
                     value = cell.getDateCellValue();
-                }else{
+                } else {
                     value = cell.getNumericCellValue();
                 }
                 break;
@@ -101,6 +124,7 @@ public class UserController extends BaseController {
 
     /**
      * 用户登录
+     *
      * @param map 包含手机号与密码
      *            "mobile" -- 手机号
      *            "password" -- 密码
@@ -110,6 +134,9 @@ public class UserController extends BaseController {
     public Result login(@RequestBody Map<String, String> map) {
         String mobile = map.get("mobile");
         String password = map.get("password");
+        /**
+         * 基于shiro签发token
+         */
         try {
             //加密密码
             password = new Md5Hash(password, mobile, 3).toString();
@@ -126,9 +153,12 @@ public class UserController extends BaseController {
             e.printStackTrace();
             return new Result(ResultCode.LOGIN_ERROR);
         }
-//        //根据手机号查询用户
-//        User user = userService.login(new QueryWrapper<User>()
-//                .eq("mobile", (String) map.get("mobile")));
+        /**
+         * 基于jwt签发token
+         */
+        //加密密码
+        //password = new Md5Hash(password, mobile, 3).toString();
+//        User user = userService.login(mobile);
 //        //比较密码是否一致
 //        if (user != null && user.getPassword().equals(password)) {
 //            //为token添加api权限字符串
@@ -157,9 +187,9 @@ public class UserController extends BaseController {
 
     /**
      * 为用户分配角色
-     * @param map
-     *          “id” -- 用户id
-     *          “roleIds” -- 要绑定的角色列表
+     *
+     * @param map “id” -- 用户id
+     *            “roleIds” -- 要绑定的角色列表
      * @return
      */
     @PutMapping("/user/assignRoles")
@@ -174,6 +204,7 @@ public class UserController extends BaseController {
 
     /**
      * 保存用户信息
+     *
      * @param user
      * @return
      */
@@ -189,6 +220,7 @@ public class UserController extends BaseController {
 
     /**
      * 更新用户信息
+     *
      * @param id
      * @param user
      * @return
@@ -205,6 +237,7 @@ public class UserController extends BaseController {
 
     /**
      * 删除用户信息
+     *
      * @param id
      * @return
      */
@@ -220,6 +253,7 @@ public class UserController extends BaseController {
 
     /**
      * 查询用户
+     *
      * @param id
      * @return UserResult 对象，包含用户基本信息与所有角色
      * @throws NoResultException
@@ -236,7 +270,24 @@ public class UserController extends BaseController {
     }
 
     /**
+     * 获取当前企业所有用户简洁信息
+     *
+     * @return
+     */
+    @GetMapping("/user/simple")
+    public Result simple() {
+        List<User> users = userService
+                .list(new QueryWrapper<User>().eq("company_id", companyId));
+        List<UserSimpleResult> simpleResults = new ArrayList<>();
+        for (User user : users) {
+            simpleResults.add(new UserSimpleResult(user.getId(), user.getUsername()));
+        }
+        return new Result(ResultCode.SUCCESS, simpleResults);
+    }
+
+    /**
      * 查询用户列表
+     *
      * @param page
      * @param size
      * @param map
@@ -263,7 +314,13 @@ public class UserController extends BaseController {
      */
     @PostMapping("/profile")
     public Result getById() {
+        /**
+         * jwt方式根据claims获取用户信息
+         */
         //User user = userService.getUser(claims.getId());
+        /**
+         * shiro方式根据subject获取用户信息
+         */
         //从session中获取安全数据
         Subject subject = SecurityUtils.getSubject();
         ProfileResult result = (ProfileResult) subject.getPrincipals().getPrimaryPrincipal();

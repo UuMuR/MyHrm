@@ -13,76 +13,83 @@ import org.crazycake.shiro.RedisSessionDAO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * shiro过滤器
+ * 在网关中对权限统一处理
+ */
 @Configuration
 public class ShiroConfiguration {
 
-    /**
-     * 创建realm
-     * @return
-     */
+    @Value("${spring.redis.host}")
+    private String host;
+
+    @Value("${spring.redis.port}")
+    private int port;
+
+    //配置自定义的Realm
     @Bean
     public MyhrmRealm getRealm() {
         return new MyhrmRealm();
     }
 
-    /**
-     * 创建securityManager
-     * @param realm
-     * @return
-     */
+    //配置安全管理器
     @Bean
-    public SecurityManager getSecurityManager(MyhrmRealm realm) {
+    public SecurityManager securityManager() {
+        //使用默认的安全管理器
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
-        securityManager.setRealm(realm);
-        //将自定义的会话管理器注册到安全管理器中
+        // 自定义session管理 使用redis
         securityManager.setSessionManager(sessionManager());
-        //将自定义的redis缓存管理器注册到安全管理器中
+        // 自定义缓存实现 使用redis
         securityManager.setCacheManager(cacheManager());
+        //将自定义的realm交给安全管理器统一调度管理
+        securityManager.setRealm(getRealm());
         return securityManager;
     }
 
-    /**
-     * web程序中，shiro进行权限控制全部是通过一组过滤器集合进行控制
-     * 配置shiro的过滤器工厂
-     */
+    //Filter工厂，设置对应的过滤条件和跳转条件
     @Bean
-    public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager) {
-        //1.创建过滤器工厂
+    public ShiroFilterFactoryBean shirFilter(SecurityManager securityManager) {
+        //1.创建shiro过滤器工厂
         ShiroFilterFactoryBean filterFactory = new ShiroFilterFactoryBean();
         //2.设置安全管理器
         filterFactory.setSecurityManager(securityManager);
-        //3.通用配置（跳转登录页面）
-        filterFactory.setLoginUrl("/autherror?code=1");//跳转url地址
-        filterFactory.setUnauthorizedUrl("/autherror?code=2");//未授权的url
+        //3.通用配置（配置登录页面，登录成功页面，验证未成功页面）
+        filterFactory.setLoginUrl("/autherror?code=1"); //设置登录页面
+        filterFactory.setUnauthorizedUrl("/autherror?code=2"); //授权失败跳转页面
+        //4.配置过滤器集合
+        /**
+         * key  ：访问连接
+         *      支持通配符的形式
+         * value：过滤器类型
+         *      shiro常用过滤器
+         *          anno    ：匿名访问（表明此链接所有人可以访问）
+         *          authc   ：认证后访问（表明此链接需登录认证成功之后可以访问）
+         */
         Map<String,String> filterMap = new LinkedHashMap<>();
-        //可匿名（未登录）访问的接口 -- 1、登录 -- 2、注册 -- 3、认证失败访问接口
+        //配置请求连接过滤器配置
+        //匿名访问（所有人员可以使用）
         filterMap.put("/sys/login", "anon");
         filterMap.put("/autherror", "anon");
-        //其他所有接口均需要登录
-        //需要认证的接口通过注解标注
+        //认证之后访问（登录之后可以访问）
         filterMap.put("/**", "authc");
-        //4.设置过滤器集合
-        /**
-         * 设置所有的过滤器：有顺序map
-         *     key = 拦截的url地址
-         *     value = 过滤器类型
-         */
-        filterMap.put("/user/**","authc");//当前请求地址必须认证之后可以访问
+        //5.设置过滤器
         filterFactory.setFilterChainDefinitionMap(filterMap);
         return filterFactory;
     }
 
-    @Value("${spring.redis.host}")
-    private String host;
-    @Value("${spring.redis.port}")
-    private int port;
+    //配置shiro注解支持
+    @Bean
+    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(SecurityManager securityManager) {
+        AuthorizationAttributeSourceAdvisor advisor = new AuthorizationAttributeSourceAdvisor();
+        advisor.setSecurityManager(securityManager);
+        return advisor;
+    }
 
-    /**
-     * 1.redis的控制器，操作redis
-     */
+    //配置shiro redisManager
     public RedisManager redisManager() {
         RedisManager redisManager = new RedisManager();
         redisManager.setHost(host);
@@ -90,42 +97,29 @@ public class ShiroConfiguration {
         return redisManager;
     }
 
-    /**
-     * 2.sessionDao
-     */
-    public RedisSessionDAO redisSessionDAO() {
-        RedisSessionDAO sessionDAO = new RedisSessionDAO();
-        sessionDAO.setRedisManager(redisManager());
-        return sessionDAO;
-    }
-
-    /**
-     * 3.会话管理器
-     */
-    public DefaultWebSessionManager sessionManager() {
-        CustomSessionManager sessionManager = new CustomSessionManager();
-        sessionManager.setSessionDAO(redisSessionDAO());
-        //禁用cookie
-        sessionManager.setSessionIdCookieEnabled(false);
-        //禁用url重写
-        sessionManager.setSessionIdUrlRewritingEnabled(false);
-        return sessionManager;
-    }
-
-    /**
-     * 4.缓存管理器
-     */
+    //cacheManager缓存 redis实现
     public RedisCacheManager cacheManager() {
         RedisCacheManager redisCacheManager = new RedisCacheManager();
         redisCacheManager.setRedisManager(redisManager());
         return redisCacheManager;
     }
 
-    //开启对shior注解的支持
-    @Bean
-    public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(SecurityManager securityManager) {
-        AuthorizationAttributeSourceAdvisor advisor = new AuthorizationAttributeSourceAdvisor();
-        advisor.setSecurityManager(securityManager);
-        return advisor;
+    /**
+     * RedisSessionDAO shiro sessionDao层的实现 通过redis
+     * 使用的是shiro-redis开源插件
+     */
+    public RedisSessionDAO redisSessionDAO() {
+        RedisSessionDAO redisSessionDAO = new RedisSessionDAO();
+        redisSessionDAO.setRedisManager(redisManager());
+        return redisSessionDAO;
+    }
+
+    /**
+     * shiro session的管理
+     */
+    public DefaultWebSessionManager sessionManager() {
+        CustomSessionManager sessionManager = new CustomSessionManager();
+        sessionManager.setSessionDAO(redisSessionDAO());
+        return sessionManager;
     }
 }

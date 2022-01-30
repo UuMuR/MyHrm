@@ -41,7 +41,7 @@ public class JwtInterceptor implements HandlerInterceptor {
                 String name = annotation.name();
                 //若访问api接口没有指定注解属性name，则没有限制访问，可以直接放行
                 if (StringUtils.isEmpty(name) || (!StringUtils.isEmpty(apis) && apis.contains(name))){
-                    //存入请求域对象中
+                    //将claims存入请求域对象中
                     request.setAttribute("user_claims", claims);
                     return true;
                 } else

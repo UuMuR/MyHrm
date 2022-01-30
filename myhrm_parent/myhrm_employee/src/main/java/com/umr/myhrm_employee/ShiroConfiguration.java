@@ -65,14 +65,13 @@ public class ShiroConfiguration {
          *          anno    ：匿名访问（表明此链接所有人可以访问）
          *          authc   ：认证后访问（表明此链接需登录认证成功之后可以访问）
          */
-        Map<String,String> filterMap = new LinkedHashMap<String,String>();
+        Map<String,String> filterMap = new LinkedHashMap<>();
         //配置请求连接过滤器配置
         //匿名访问（所有人员可以使用）
-        filterMap.put("/frame/login", "anon");
+        filterMap.put("/sys/login", "anon");
         filterMap.put("/autherror", "anon");
         //认证之后访问（登录之后可以访问）
-        filterMap.put("/**", "authc");
-
+        //filterMap.put("/employees", "authc");
         //5.设置过滤器
         filterFactory.setFilterChainDefinitionMap(filterMap);
         return filterFactory;

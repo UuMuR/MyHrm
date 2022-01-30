@@ -1,6 +1,8 @@
 package com.umr.myhrm_common.controller;
 
+import com.umr.myhrm_common.utils.JwtUtils;
 import com.umr.myhrm_common_model.domain.system.response.ProfileResult;
+import io.jsonwebtoken.Claims;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -20,7 +22,9 @@ public class BaseController {
     protected HttpServletRequest request;
     protected HttpServletResponse response;
     protected String userId;
-    //protected Claims claims;
+    protected Claims claims;
+
+    private JwtUtils jwtUtils;
 
     /**
      * jwt方式
@@ -30,11 +34,14 @@ public class BaseController {
 //        this.request = request;
 //        this.response = response;
 //        //从claims中获取企业与用户信息
-//        Claims claims = (Claims) request.getAttribute("user_claims");
+//        String token = request.getHeader("Authorization").replace("Bearer ", "");
+//        Claims claims = jwtUtils.getClaims(token);
+//        //Claims claims = (Claims) request.getAttribute("user_claims");
 //        if (claims != null) {
 //            this.claims = claims;
 //            this.companyId = (String) claims.get("companyId");
 //            this.companyName = (String) claims.get("companyName");
+//            this.userId = claims.getId();
 //        }
 //    }
 
@@ -50,14 +57,14 @@ public class BaseController {
         PrincipalCollection principals = subject.getPrincipals();
         if (principals != null && !principals.isEmpty()) {
             ProfileResult result = (ProfileResult) principals.getPrimaryPrincipal();
-//            Object primaryPrincipal = principals.getPrimaryPrincipal();
-//            try {
-//                BeanUtils.copyProperties(result, primaryPrincipal);
-//            } catch (IllegalAccessException e) {
-//                e.printStackTrace();
-//            } catch (InvocationTargetException e) {
-//                e.printStackTrace();
-//            }
+            Object primaryPrincipal = principals.getPrimaryPrincipal();
+            try {
+                BeanUtils.copyProperties(result, primaryPrincipal);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
             this.userId = result.getUserId();
             this.companyName = result.getCompany();
             this.companyId = result.getCompanyId();

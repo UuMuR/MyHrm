@@ -86,6 +86,8 @@ public class UserResult implements Serializable {
 
     private List<String> roleIds;
 
+    private String staffPhoto;
+
     public UserResult(User user, List<String> roleIds) {
         BeanUtils.copyProperties(user, this);
         this.roleIds = roleIds;

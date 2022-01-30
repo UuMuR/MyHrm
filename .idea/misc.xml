@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/myhrm_parent/pom.xml" />
+        <option value="$PROJECT_DIR$/myhrm_parent/myhrm_company/pom.xml" />
+        <option value="$PROJECT_DIR$/myhrm_parent/myhrm_employee/pom.xml" />
+        <option value="$PROJECT_DIR$/myhrm_parent/myhrm_feign/pom.xml" />
+        <option value="$PROJECT_DIR$/myhrm_parent/myhrm_system/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_16" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
+</project>

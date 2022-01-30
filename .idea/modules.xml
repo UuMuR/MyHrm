@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/myhrm_parent/myhrm_common/myhrm_common.iml" filepath="$PROJECT_DIR$/myhrm_parent/myhrm_common/myhrm_common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/myhrm_parent/myhrm_common_model/myhrm_common_model.iml" filepath="$PROJECT_DIR$/myhrm_parent/myhrm_common_model/myhrm_common_model.iml" />
+      <module fileurl="file://$PROJECT_DIR$/myhrm_parent/myhrm_company/myhrm_company.iml" filepath="$PROJECT_DIR$/myhrm_parent/myhrm_company/myhrm_company.iml" />
+      <module fileurl="file://$PROJECT_DIR$/myhrm_parent/myhrm_employee/myhrm_employee.iml" filepath="$PROJECT_DIR$/myhrm_parent/myhrm_employee/myhrm_employee.iml" />
+      <module fileurl="file://$PROJECT_DIR$/myhrm_parent/myhrm_feign/myhrm_feign.iml" filepath="$PROJECT_DIR$/myhrm_parent/myhrm_feign/myhrm_feign.iml" />
+      <module fileurl="file://$PROJECT_DIR$/myhrm_parent/myhrm_gateway/myhrm_gateway.iml" filepath="$PROJECT_DIR$/myhrm_parent/myhrm_gateway/myhrm_gateway.iml" />
+      <module fileurl="file://$PROJECT_DIR$/myhrm_parent/myhrm_parent.iml" filepath="$PROJECT_DIR$/myhrm_parent/myhrm_parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/myhrm_parent/myhrm_system/myhrm_system.iml" filepath="$PROJECT_DIR$/myhrm_parent/myhrm_system/myhrm_system.iml" />
+    </modules>
+  </component>
+</project>

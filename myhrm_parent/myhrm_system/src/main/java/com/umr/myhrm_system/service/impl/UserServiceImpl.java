@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 import com.umr.myhrm_common.utils.IdWorker;
 import com.umr.myhrm_common_model.domain.system.Permission;
 import com.umr.myhrm_common_model.domain.system.Role;
@@ -19,8 +20,9 @@ import com.umr.myhrm_system.service.UserService;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.security.PublicKey;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -134,6 +136,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .selectOne(new QueryWrapper<User>().eq("mobile", mobile))
                 .getId());
         return user;
+    }
+
+    /**
+     * 上传用户头像
+     * @param id  用户id
+     * @param img  图片DatUrl
+     * @return  回显图片的请求url
+     */
+    @Override
+    public String upload(String id, MultipartFile img) throws IOException {
+        User user = userMapper.selectById(id);
+        //Base64解码获得图片字节码数组
+        String encode = "data:image/jpg;base64," + Base64.encode(img.getBytes());
+        user.setStaffPhoto(encode);
+        userMapper.updateById(user);
+        return encode;
     }
 
     /**

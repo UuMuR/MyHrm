@@ -5,12 +5,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-
-import javax.persistence.*;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -124,6 +121,11 @@ public class User implements Serializable {
      *      3、user 普通用户
      */
     private String level;
+
+    /**
+     * 用户头像，DataUrl格式
+     */
+    private String staffPhoto;
 
 //    @ManyToMany
     @JsonIgnore
